@@ -24,9 +24,12 @@ async function run() {
     core.debug('Checking for videos and/or screenshots from cypress')
     const videos = walkSync(workdir, { globs: ['**/*.mp4'] })
     const screenshots = walkSync(workdir, { globs: ['**/*.png'] })
-    const logs = walkSync(workdir, { globs: '**/logs/*.json' })
+    const logs = walkSync(workdir, { globs: '**/*.json' })
 
     core.info(`There were ${logs.length} errors based on the files present.`)
+    if (logs.length > 0) {
+      core.info(`The log files found were: ${logs.join(", ")}`)
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
