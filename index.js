@@ -1,5 +1,4 @@
 const core = require('@actions/core');
-const wait = require('./wait');
 const walkSync = require('walk-sync');
 const { WebClient } = require('@slack/web-api')
 
