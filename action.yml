@@ -1,13 +1,19 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'Post Cypress failures to Slack'
+description: 'Posts any failures in a Cypress run to Slack along with associated videos and screenshots'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  token:
+    description: 'Slack token'
     required: true
-    default: '1000'
-outputs:
-  time: # output will be available to future steps
-    description: 'The current time after waiting'
+  channels:
+    description: 'Slack channels'
+    required: true
+  workdir:
+    description: 'The path of the directory where Cypress stores its screenshots. Defaults to `./cypress`. No trailing slashes, please.'
+    required: false
+  message-text:
+    description: 'Custom Slack message text'
+    required: false
+outputs: {}
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
