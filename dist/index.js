@@ -11723,23 +11723,6 @@ module.exports = walkSync;
 
 /***/ }),
 
-/***/ 4258:
-/***/ ((module) => {
-
-let wait = function (milliseconds) {
-  return new Promise((resolve) => {
-    if (typeof milliseconds !== 'number') {
-      throw new Error('milliseconds not a number');
-    }
-    setTimeout(() => resolve("done!"), milliseconds)
-  });
-};
-
-module.exports = wait;
-
-
-/***/ }),
-
 /***/ 9491:
 /***/ ((module) => {
 
@@ -11918,7 +11901,6 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(2186);
-const wait = __nccwpck_require__(4258);
 const walkSync = __nccwpck_require__(2999);
 const { WebClient } = __nccwpck_require__(431)
 
