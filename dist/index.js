@@ -11995,8 +11995,6 @@ async function run() {
 
     const failures = logs.map(path => JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(failures))
-
     const parseFailure =  failure => ({
       fullDescription: failure['testName'],
       message: failure['testError'],
@@ -12011,6 +12009,14 @@ async function run() {
     }).join('')
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(failuresText)
+
+    const { ts: threadId, channel: channelId } = result
+
+    await slack.chat.postMessage({
+      text: failuresText,
+      channel: channelId,
+      thread_ts: threadId,
+    })
 
   } catch (error) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);

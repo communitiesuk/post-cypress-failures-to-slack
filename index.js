@@ -43,8 +43,6 @@ async function run() {
 
     const failures = logs.map(path => JSON.parse(readFileSync(`${workdir}/${path}`)))
 
-    core.info(JSON.stringify(failures))
-
     const parseFailure =  failure => ({
       fullDescription: failure['testName'],
       message: failure['testError'],
@@ -59,6 +57,14 @@ async function run() {
     }).join('')
 
     core.info(failuresText)
+
+    const { ts: threadId, channel: channelId } = result
+
+    await slack.chat.postMessage({
+      text: failuresText,
+      channel: channelId,
+      thread_ts: threadId,
+    })
 
   } catch (error) {
     core.setFailed(error.message);
