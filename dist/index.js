@@ -12004,7 +12004,7 @@ async function run() {
     })
 
     const failuresText = ':fire: EPB FRONTEND SMOKE TEST FAILURE: ' + failures.map(parseFailure).map(failure => {
-      `
+      return `
       Test: ${failure['fullDescription']} has failed
       with error: ${failure['message']}
       in test file: ${failure['testFile']}`
