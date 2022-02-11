@@ -11958,36 +11958,36 @@ __nccwpck_require__.r(__webpack_exports__);
 // most @actions toolkit packages have async methods
 async function run() {
   try {
-    const token = _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('token')
-    const channels = _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('channels')
-    const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('workdir') || 'cypress'
+    const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token')
+    const channels = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('channels')
+    const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('workdir') || 'cypress'
     const messageText =
-      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('message-text') ||
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('message-text') ||
       "A Cypress test just finished. I've placed the screenshots and videos in this thread. Good pie!"
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug(`Token: ${token}`)
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug(`Channels: ${channels}`)
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug(`Message text: ${messageText}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Token: ${token}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Channels: ${channels}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Message text: ${messageText}`)
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('Initializing slack SDK')
-    const slack = new _slack_web_api__WEBPACK_IMPORTED_MODULE_3__.WebClient(_actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('token'))
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('Slack SDK initialized successfully')
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Initializing slack SDK')
+    const slack = new _slack_web_api__WEBPACK_IMPORTED_MODULE_3__.WebClient(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token'))
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Slack SDK initialized successfully')
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('Checking for videos and/or screenshots from cypress')
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Checking for videos and/or screenshots from cypress')
     const videos = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/*.mp4'] })
     const screenshots = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/*.png'] })
     const logs = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/logs/*.json'] })
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`There were ${logs.length} errors based on the files present.`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`There were ${logs.length} errors based on the files present.`)
     if (logs.length > 0) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`The log files found were: ${logs.join(", ")}`)
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`The log files found were: ${logs.join(", ")}`)
     } else {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('No failures found!')
-      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setOutput('result', 'No failures logged found so no action taken!')
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('No failures found!')
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('result', 'No failures logged found so no action taken!')
       return
     }
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('Sending initial slack message')
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Sending initial slack message')
     const result = await slack.chat.postMessage({
       text: "I've got test results coming in from Cypress. Hold tight ...",
       channel: channels
@@ -11995,10 +11995,10 @@ async function run() {
 
     const failures = logs.map(path => JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(JSON.stringify(failures))
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(failures))
 
   } catch (error) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setFailed(error.message);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
   }
 }
 

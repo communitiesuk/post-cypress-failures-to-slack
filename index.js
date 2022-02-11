@@ -1,4 +1,4 @@
-import core from '@actions/core';
+import * as core from '@actions/core';
 import { readFileSync } from 'fs';
 import walkSync from 'walk-sync';
 import { WebClient } from '@slack/web-api';
