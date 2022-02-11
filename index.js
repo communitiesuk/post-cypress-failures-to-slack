@@ -84,7 +84,6 @@ async function run() {
       text: failuresText,
       blocks: failureBlocks,
       channel: channels,
-      thread_ts: threadId,
     })
 
     const failedSpecs = failures.map(parseFailure).map( failure => failure.testFile.split('/').slice(-1)[0])
@@ -92,13 +91,6 @@ async function run() {
     const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)) )
 
     const { ts: threadId, channel: channelId } = result
-
-    await slack.chat.postMessage({
-      text: failuresText,
-      blocks: failureBlocks,
-      channel: channelId,
-      thread_ts: threadId,
-    })
 
     if (failureVideos.length > 0) {
       core.debug('Uploading videos...')
