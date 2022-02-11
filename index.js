@@ -57,16 +57,36 @@ async function run() {
     }].concat(
       failures
         .map(parseFailure)
-        .map(failure => ({
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `*Failed test*: ${failure['fullDescription']}
-            *in test file*: ${failure['testFile']}
-            
-            \`${failure['message']}\``
+        .map(failure => ([
+          {
+            type: "context",
+            elements: [
+              {
+                type: "mrkdwn",
+                text: "📄",
+              },
+              {
+                type: "mrkdwn",
+                text: `*File*: ${failure['testFile']}`
+              }
+            ]
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*Failed test*: ${failure['fullDescription']}`
+            }
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*message*: \`${failure['message'].split("\n")[0]}\``
+            }
           }
-        }))
+        ]))
+        .flat()
     ).concat([
       {
         type: "divider",
