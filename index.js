@@ -45,6 +45,21 @@ async function run() {
 
     core.info(JSON.stringify(failures))
 
+    const parseFailure =  failure => ({
+      fullDescription: failure['testName'],
+      message: failure['testError'],
+      testFile: failure['specName'].split('%2F').slice(1)
+    })
+
+    const failuresText = ':fire: EPB FRONTEND SMOKE TEST FAILURE: ' + failures.map(parseFailure).map(failure => {
+      `
+      Test: ${failure['fullDescription']} has failed
+      with error: ${failure['message']}
+      in test file: ${failure['testFile']}`
+    }).join('')
+
+    core.info(failuresText)
+
   } catch (error) {
     core.setFailed(error.message);
   }
