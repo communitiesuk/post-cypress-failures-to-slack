@@ -1,7 +1,7 @@
-const core = require('@actions/core');
-const walkSync = require('walk-sync');
-const { WebClient } = require('@slack/web-api')
-
+import core from '@actions/core';
+import { readFileSync } from 'fs';
+import walkSync from 'walk-sync';
+import { WebClient } from '@slack/web-api';
 
 // most @actions toolkit packages have async methods
 async function run() {
@@ -29,7 +29,22 @@ async function run() {
     core.info(`There were ${logs.length} errors based on the files present.`)
     if (logs.length > 0) {
       core.info(`The log files found were: ${logs.join(", ")}`)
+    } else {
+      core.debug('No failures found!')
+      core.setOutput('result', 'No failures logged found so no action taken!')
+      return
     }
+
+    core.debug('Sending initial slack message')
+    const result = await slack.chat.postMessage({
+      text: "I've got test results coming in from Cypress. Hold tight ...",
+      channel: channels
+    })
+
+    const failures = logs.map(path => JSON.parse(readFileSync(`${workdir}/${path}`)))
+
+    core.info(JSON.stringify(failures))
+
   } catch (error) {
     core.setFailed(error.message);
   }

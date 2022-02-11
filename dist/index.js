@@ -11892,48 +11892,113 @@ module.exports = JSON.parse('{"application/1d-interleaved-parityfec":{"source":"
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
-const core = __nccwpck_require__(2186);
-const walkSync = __nccwpck_require__(2999);
-const { WebClient } = __nccwpck_require__(431)
+"use strict";
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2186);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(7147);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var walk_sync__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2999);
+/* harmony import */ var walk_sync__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(walk_sync__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _slack_web_api__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(431);
+/* harmony import */ var _slack_web_api__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__nccwpck_require__.n(_slack_web_api__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
 
 
 // most @actions toolkit packages have async methods
 async function run() {
   try {
-    const token = core.getInput('token')
-    const channels = core.getInput('channels')
-    const workdir = core.getInput('workdir') || 'cypress'
+    const token = _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('token')
+    const channels = _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('channels')
+    const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('workdir') || 'cypress'
     const messageText =
-      core.getInput('message-text') ||
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('message-text') ||
       "A Cypress test just finished. I've placed the screenshots and videos in this thread. Good pie!"
 
-    core.debug(`Token: ${token}`)
-    core.debug(`Channels: ${channels}`)
-    core.debug(`Message text: ${messageText}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug(`Token: ${token}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug(`Channels: ${channels}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug(`Message text: ${messageText}`)
 
-    core.debug('Initializing slack SDK')
-    const slack = new WebClient(core.getInput('token'))
-    core.debug('Slack SDK initialized successfully')
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('Initializing slack SDK')
+    const slack = new _slack_web_api__WEBPACK_IMPORTED_MODULE_3__.WebClient(_actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('token'))
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('Slack SDK initialized successfully')
 
-    core.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walkSync(workdir, { globs: ['**/*.mp4'] })
-    const screenshots = walkSync(workdir, { globs: ['**/*.png'] })
-    const logs = walkSync(workdir, { globs: ['**/logs/*.json'] })
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('Checking for videos and/or screenshots from cypress')
+    const videos = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/*.mp4'] })
+    const screenshots = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/*.png'] })
+    const logs = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/logs/*.json'] })
 
-    core.info(`There were ${logs.length} errors based on the files present.`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`There were ${logs.length} errors based on the files present.`)
     if (logs.length > 0) {
-      core.info(`The log files found were: ${logs.join(", ")}`)
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`The log files found were: ${logs.join(", ")}`)
+    } else {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('No failures found!')
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setOutput('result', 'No failures logged found so no action taken!')
+      return
     }
+
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().debug('Sending initial slack message')
+    const result = await slack.chat.postMessage({
+      text: "I've got test results coming in from Cypress. Hold tight ...",
+      channel: channels
+    })
+
+    const failures = logs.map(path => JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
+
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(JSON.stringify(failures))
+
   } catch (error) {
-    core.setFailed(error.message);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setFailed(error.message);
   }
 }
 
