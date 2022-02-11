@@ -36,10 +36,7 @@ async function run() {
     }
 
     core.debug('Sending initial slack message')
-    const result = await slack.chat.postMessage({
-      text: "I've got test results coming in from Cypress. Hold tight ...",
-      channel: channels
-    })
+    
 
     const failures = logs.map(path => JSON.parse(readFileSync(`${workdir}/${path}`)))
 
@@ -49,14 +46,46 @@ async function run() {
       testFile: failure['specName'].split('%2F').slice(1).join('/')
     })
 
-    const failuresText = ':fire: EPB FRONTEND SMOKE TEST FAILURE: ' + failures.map(parseFailure).map(failure => {
-      return `
-      Test: ${failure['fullDescription']} has failed
-      with error: ${failure['message']}
-      in test file: ${failure['testFile']}`
-    }).join('')
+    const failuresText = ':fire: EPB Frontend smoke test failure'
 
-    core.info(failuresText)
+    const failureBlocks = [{
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: failuresText,
+      }
+    }].concat(
+      failures
+        .map(parseFailure)
+        .map(failure => ({
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*Failed test*: ${failure['fullDescription']}
+            *in test file*: ${failure['testFile']}
+            
+            \`${failure['message']}\``
+          }
+        }))
+    ).concat([
+      {
+        type: "divider",
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "View videos in :thread:"
+        }
+      }
+    ])
+
+    const result = await slack.chat.postMessage({
+      text: failuresText,
+      blocks: failureBlocks,
+      channel: channels,
+      thread_ts: threadId,
+    })
 
     const failedSpecs = failures.map(parseFailure).map( failure => failure.testFile.split('/').slice(-1)[0])
 
@@ -66,6 +95,7 @@ async function run() {
 
     await slack.chat.postMessage({
       text: failuresText,
+      blocks: failureBlocks,
       channel: channelId,
       thread_ts: threadId,
     })
