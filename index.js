@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { readFileSync } from 'fs';
+import { readFileSync, createReadStream } from 'fs';
 import walkSync from 'walk-sync';
 import { WebClient } from '@slack/web-api';
 
@@ -46,7 +46,7 @@ async function run() {
     const parseFailure =  failure => ({
       fullDescription: failure['testName'],
       message: failure['testError'],
-      testFile: failure['specName'].split('%2F').slice(1)
+      testFile: failure['specName'].split('%2F').slice(1).join('/')
     })
 
     const failuresText = ':fire: EPB FRONTEND SMOKE TEST FAILURE: ' + failures.map(parseFailure).map(failure => {
@@ -58,6 +58,10 @@ async function run() {
 
     core.info(failuresText)
 
+    const failedSpecs = failures.map(parseFailure).map( failure => failure.testFile.split('/').slice(-1)[0])
+
+    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)) )
+
     const { ts: threadId, channel: channelId } = result
 
     await slack.chat.postMessage({
@@ -65,6 +69,25 @@ async function run() {
       channel: channelId,
       thread_ts: threadId,
     })
+
+    if (failureVideos.length > 0) {
+      core.debug('Uploading videos...')
+
+      await Promise.all(
+          failureVideos.map(async video => {
+            core.debug(`Uploading ${video}`)
+
+            await slack.files.upload({
+              filename: video,
+              file: createReadStream(`${workdir}/${video}`),
+              thread_ts: threadId,
+              channels: channelId
+            })
+          })
+      )
+
+      core.debug('...done!')
+    }
 
   } catch (error) {
     core.setFailed(error.message);

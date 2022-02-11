@@ -11998,7 +11998,7 @@ async function run() {
     const parseFailure =  failure => ({
       fullDescription: failure['testName'],
       message: failure['testError'],
-      testFile: failure['specName'].split('%2F').slice(1)
+      testFile: failure['specName'].split('%2F').slice(1).join('/')
     })
 
     const failuresText = ':fire: EPB FRONTEND SMOKE TEST FAILURE: ' + failures.map(parseFailure).map(failure => {
@@ -12010,6 +12010,10 @@ async function run() {
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(failuresText)
 
+    const failedSpecs = failures.map(parseFailure).map( failure => failure.testFile.split('/').slice(-1)[0])
+
+    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)) )
+
     const { ts: threadId, channel: channelId } = result
 
     await slack.chat.postMessage({
@@ -12017,6 +12021,25 @@ async function run() {
       channel: channelId,
       thread_ts: threadId,
     })
+
+    if (failureVideos.length > 0) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Uploading videos...')
+
+      await Promise.all(
+          failureVideos.map(async video => {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Uploading ${video}`)
+
+            await slack.files.upload({
+              filename: video,
+              file: (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${video}`),
+              thread_ts: threadId,
+              channels: channelId
+            })
+          })
+      )
+
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('...done!')
+    }
 
   } catch (error) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
