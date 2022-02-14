@@ -38,13 +38,6 @@ async function run () {
       return
     }
 
-    //temporarily output log files to console
-    logs
-      .map(path => readFileSync(`${workdir}/${path}`))
-      .forEach(logFile => {
-        core.info(logFile)
-      })
-
     const failures = parseFailLog(logs.map(path => readFileSync(`${workdir}/${path}`)))
 
     const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
