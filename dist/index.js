@@ -11953,6 +11953,49 @@ var walk_sync = __nccwpck_require__(2999);
 var walk_sync_default = /*#__PURE__*/__nccwpck_require__.n(walk_sync);
 // EXTERNAL MODULE: ./node_modules/@slack/web-api/dist/index.js
 var dist = __nccwpck_require__(431);
+;// CONCATENATED MODULE: ./src/attach-assets-to-slack-thread.js
+const attachAssetsToSlackThread = async (videos, screenshots, slack, readAsset, threadOpts, debugLog = () => {}) => {
+  if (videos.length > 0) {
+    debugLog('Uploading videos...')
+
+    await Promise.all(
+      videos.map(async video => {
+        debugLog(`Uploading ${video}`)
+
+        await slack.files.upload({
+          filename: video,
+          file: readAsset(video),
+          thread_ts: threadOpts.threadId,
+          channels: threadOpts.channelId
+        })
+      })
+    )
+
+    debugLog('...done!')
+  }
+
+  if (screenshots.length > 0) {
+    debugLog('Uploading screenshots...')
+
+    await Promise.all(
+      screenshots.map(async screenshot => {
+        debugLog(`Uploading ${screenshot}`)
+
+        await slack.files.upload({
+          filename: screenshot,
+          file: readAsset(screenshot),
+          thread_ts: threadOpts.threadId,
+          channels: threadOpts.channelId
+        })
+      })
+    )
+
+    debugLog('...done!')
+  }
+}
+
+/* harmony default export */ const attach_assets_to_slack_thread = (attachAssetsToSlackThread);
+
 ;// CONCATENATED MODULE: ./src/format-failures-as-blocks.js
 /** Formats parsed failures as block components as per the Slack Block Kit @see https://api.slack.com/block-kit */
 const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCount) => ([{
@@ -12029,6 +12072,7 @@ const parseFailLog = files => {
 
 
 
+
 // most @actions toolkit packages have async methods
 async function run () {
   try {
@@ -12063,7 +12107,11 @@ async function run () {
 
     const failures = parse_fail_log(logs.map(path => (0,external_fs_.readFileSync)(`${workdir}/${path}`)))
 
-    const failureBlocks = format_failures_as_blocks(failures, messageText, videos.length, screenshots.length)
+    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
+
+    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
+
+    const failureBlocks = format_failures_as_blocks(failures, messageText, failureVideos.length, screenshots.length)
 
     const result = await slack.chat.postMessage({
       text: messageText,
@@ -12071,47 +12119,16 @@ async function run () {
       channel: channels
     })
 
-    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
-
-    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
-
     const { ts: threadId, channel: channelId } = result
 
-    if (failureVideos.length > 0) {
-      core.debug('Uploading videos...')
-
-      await Promise.all(
-        failureVideos.map(async video => {
-          core.debug(`Uploading ${video}`)
-
-          await slack.files.upload({
-            filename: video,
-            file: (0,external_fs_.createReadStream)(`${workdir}/${video}`),
-            thread_ts: threadId,
-            channels: channelId
-          })
-        })
-      )
-
-      core.debug('...done!')
-    }
-
-    if (screenshots.length > 0) {
-      core.debug('Uploading screenshots')
-
-      await Promise.all(
-        screenshots.map(async screenshot => {
-          core.debug(`Uploading ${screenshot}`)
-
-          await slack.files.upload({
-            filename: screenshot,
-            file: (0,external_fs_.createReadStream)(`${workdir}/${screenshot}`),
-            thread_ts: threadId,
-            channels: channelId
-          })
-        })
-      )
-    }
+    await attach_assets_to_slack_thread(
+      failureVideos,
+      screenshots,
+      slack,
+      asset => (0,external_fs_.createReadStream)(`${workdir}/${asset}`),
+      { threadId, channelId },
+      core.debug
+    )
   } catch (error) {
     core.setFailed(error.message)
   }

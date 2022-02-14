@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import { readFileSync, createReadStream } from 'fs'
 import walkSync from 'walk-sync'
 import { WebClient } from '@slack/web-api'
+import attachAssetsToSlackThread from './src/attach-assets-to-slack-thread'
 import formatFailuresAsBlocks from './src/format-failures-as-blocks'
 import parseFailLog from './src/parse-fail-log'
 
@@ -39,7 +40,11 @@ async function run () {
 
     const failures = parseFailLog(logs.map(path => readFileSync(`${workdir}/${path}`)))
 
-    const failureBlocks = formatFailuresAsBlocks(failures, messageText, videos.length, screenshots.length)
+    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
+
+    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
+
+    const failureBlocks = formatFailuresAsBlocks(failures, messageText, failureVideos.length, screenshots.length)
 
     const result = await slack.chat.postMessage({
       text: messageText,
@@ -47,47 +52,16 @@ async function run () {
       channel: channels
     })
 
-    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
-
-    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
-
     const { ts: threadId, channel: channelId } = result
 
-    if (failureVideos.length > 0) {
-      core.debug('Uploading videos...')
-
-      await Promise.all(
-        failureVideos.map(async video => {
-          core.debug(`Uploading ${video}`)
-
-          await slack.files.upload({
-            filename: video,
-            file: createReadStream(`${workdir}/${video}`),
-            thread_ts: threadId,
-            channels: channelId
-          })
-        })
-      )
-
-      core.debug('...done!')
-    }
-
-    if (screenshots.length > 0) {
-      core.debug('Uploading screenshots')
-
-      await Promise.all(
-        screenshots.map(async screenshot => {
-          core.debug(`Uploading ${screenshot}`)
-
-          await slack.files.upload({
-            filename: screenshot,
-            file: createReadStream(`${workdir}/${screenshot}`),
-            thread_ts: threadId,
-            channels: channelId
-          })
-        })
-      )
-    }
+    await attachAssetsToSlackThread(
+      failureVideos,
+      screenshots,
+      slack,
+      asset => createReadStream(`${workdir}/${asset}`),
+      { threadId, channelId },
+      core.debug
+    )
   } catch (error) {
     core.setFailed(error.message)
   }
