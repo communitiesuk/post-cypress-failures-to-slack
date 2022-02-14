@@ -3,7 +3,7 @@ const { readFileSync } = require('fs')
 const parseFailLog = require('../src/parse-fail-log')
 
 test('it successfully parses fail log files into failure objects', () => {
-  expect(parseFailLog(walkSync('.', { globs: ['**/fixtures/logs/*.json'] }).map(path => readFileSync(path))))
+  expect(parseFailLog(walkSync(__dirname, { globs: ['**/fixtures/logs/*.json'] }).map(path => readFileSync(`${__dirname}/${path}`))))
     .toEqual([
       {
         fullDescription: 'Find EPC by postcode in Welsh with a postcode for which certificates exist shows existence of those certificates on the search results page',
