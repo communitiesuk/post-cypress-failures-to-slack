@@ -38,6 +38,11 @@
   "standard": {
     "ignore": [
       "dist/**/*.js"
+    ],
+    "globals": [
+      "expect",
+      "jest",
+      "test"
     ]
   }
 }

@@ -1,4 +1,4 @@
-const attachAssetsToSlackThread = async (videos, screenshots, slack, readAsset, threadOpts, debugLog = () => {}) => {
+const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset, threadOpts, debugLog = () => {}) => {
   if (videos.length > 0) {
     debugLog('Uploading videos...')
 
@@ -8,7 +8,7 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, readAsset, 
 
         await slack.files.upload({
           filename: video,
-          file: readAsset(video),
+          file: streamAsset(video),
           thread_ts: threadOpts.threadId,
           channels: threadOpts.channelId
         })
@@ -27,7 +27,7 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, readAsset, 
 
         await slack.files.upload({
           filename: screenshot,
-          file: readAsset(screenshot),
+          file: streamAsset(screenshot),
           thread_ts: threadOpts.threadId,
           channels: threadOpts.channelId
         })
@@ -38,4 +38,4 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, readAsset, 
   }
 }
 
-export default attachAssetsToSlackThread
+module.exports = attachAssetsToSlackThread

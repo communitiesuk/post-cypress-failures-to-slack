@@ -25,7 +25,7 @@ const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCou
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `*Failed test*: ${failure.fullDescription}`
+          text: `*failed test*: ${failure.fullDescription}`
         }
       },
       {
@@ -45,9 +45,9 @@ const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCou
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: `${videoCount} video${videoCount === 1 ? '' : 's'} and ${screenshotCount} screenshot${screenshotCount === 1 ? '' : 's'} in :thread:`
+      text: `${videoCount === 1 ? 'One video' : `${videoCount} videos`} and ${screenshotCount === 1 ? 'one screenshot' : `${screenshotCount} screenshots`} in :thread:`
     }
   }
 ]))
 
-export default formatFailuresAsBlocks
+module.exports = formatFailuresAsBlocks
