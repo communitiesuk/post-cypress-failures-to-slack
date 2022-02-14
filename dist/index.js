@@ -12105,6 +12105,13 @@ async function run () {
       return
     }
 
+    //temporarily output log files to console
+    logs
+      .map(path => (0,external_fs_.readFileSync)(`${workdir}/${path}`))
+      .forEach(logFile => {
+        core.info(logFile)
+      })
+
     const failures = parse_fail_log(logs.map(path => (0,external_fs_.readFileSync)(`${workdir}/${path}`)))
 
     const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
