@@ -11956,14 +11956,14 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 // most @actions toolkit packages have async methods
-async function run() {
+async function run () {
   try {
     const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token')
     const channels = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('channels')
     const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('workdir') || 'cypress'
     const messageText =
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('message-text') ||
-      "A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread"
+      'A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread'
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Token: ${token}`)
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Channels: ${channels}`)
@@ -11980,7 +11980,7 @@ async function run() {
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`There were ${logs.length} errors based on the files present.`)
     if (logs.length > 0) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`The log files found were: ${logs.join(", ")}`)
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`The log files found were: ${logs.join(', ')}`)
     } else {
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('No failures found!')
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('result', 'No failures logged found so no action taken!')
@@ -11989,60 +11989,60 @@ async function run() {
 
     const failures = logs.map(path => JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
 
-    const parseFailure =  failure => ({
-      fullDescription: failure['testName'],
-      message: failure['testError'],
-      testFile: failure['specName'].split('%2F').slice(1).join('/')
+    const parseFailure = failure => ({
+      fullDescription: failure.testName,
+      message: failure.testError,
+      testFile: failure.specName.split('%2F').slice(1).join('/')
     })
 
     const failureBlocks = [{
-      type: "header",
+      type: 'header',
       text: {
-        type: "plain_text",
-        text: messageText,
+        type: 'plain_text',
+        text: messageText
       }
     }].concat(
       failures
         .map(parseFailure)
         .map(failure => ([
           {
-            type: "context",
+            type: 'context',
             elements: [
               {
-                type: "mrkdwn",
-                text: "📄",
+                type: 'mrkdwn',
+                text: '📄'
               },
               {
-                type: "mrkdwn",
-                text: `*File*: ${failure['testFile']}`
+                type: 'mrkdwn',
+                text: `*File*: ${failure.testFile}`
               }
             ]
           },
           {
-            type: "section",
+            type: 'section',
             text: {
-              type: "mrkdwn",
-              text: `*Failed test*: ${failure['fullDescription']}`
+              type: 'mrkdwn',
+              text: `*Failed test*: ${failure.fullDescription}`
             }
           },
           {
-            type: "section",
+            type: 'section',
             text: {
-              type: "mrkdwn",
-              text: `*message*: \`${failure['message'].split("\n")[0]}\``
+              type: 'mrkdwn',
+              text: `*message*: \`${failure.message.split('\n')[0]}\``
             }
           },
           {
-            type: "divider",
+            type: 'divider'
           }
         ]))
         .flat()
     ).concat([
       {
-        type: "section",
+        type: 'section',
         text: {
-          type: "mrkdwn",
-          text: "Videos and screenshots in :thread:"
+          type: 'mrkdwn',
+          text: 'Videos and screenshots in :thread:'
         }
       }
     ])
@@ -12050,12 +12050,12 @@ async function run() {
     const result = await slack.chat.postMessage({
       text: messageText,
       blocks: failureBlocks,
-      channel: channels,
+      channel: channels
     })
 
-    const failedSpecs = failures.map(parseFailure).map( failure => failure.testFile.split('/').slice(-1)[0])
+    const failedSpecs = failures.map(parseFailure).map(failure => failure.testFile.split('/').slice(-1)[0])
 
-    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)) )
+    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
 
     const { ts: threadId, channel: channelId } = result
 
@@ -12063,16 +12063,16 @@ async function run() {
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Uploading videos...')
 
       await Promise.all(
-          failureVideos.map(async video => {
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Uploading ${video}`)
+        failureVideos.map(async video => {
+          _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Uploading ${video}`)
 
-            await slack.files.upload({
-              filename: video,
-              file: (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${video}`),
-              thread_ts: threadId,
-              channels: channelId
-            })
+          await slack.files.upload({
+            filename: video,
+            file: (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${video}`),
+            thread_ts: threadId,
+            channels: channelId
           })
+        })
       )
 
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('...done!')
@@ -12092,15 +12092,14 @@ async function run() {
             channels: channelId
           })
         })
-    )
+      )
     }
-
   } catch (error) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message)
   }
 }
 
-run();
+run()
 
 })();
 

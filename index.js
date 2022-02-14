@@ -1,17 +1,17 @@
-import * as core from '@actions/core';
-import { readFileSync, createReadStream } from 'fs';
-import walkSync from 'walk-sync';
-import { WebClient } from '@slack/web-api';
+import * as core from '@actions/core'
+import { readFileSync, createReadStream } from 'fs'
+import walkSync from 'walk-sync'
+import { WebClient } from '@slack/web-api'
 
 // most @actions toolkit packages have async methods
-async function run() {
+async function run () {
   try {
     const token = core.getInput('token')
     const channels = core.getInput('channels')
     const workdir = core.getInput('workdir') || 'cypress'
     const messageText =
       core.getInput('message-text') ||
-      "A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread"
+      'A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread'
 
     core.debug(`Token: ${token}`)
     core.debug(`Channels: ${channels}`)
@@ -28,7 +28,7 @@ async function run() {
 
     core.info(`There were ${logs.length} errors based on the files present.`)
     if (logs.length > 0) {
-      core.info(`The log files found were: ${logs.join(", ")}`)
+      core.info(`The log files found were: ${logs.join(', ')}`)
     } else {
       core.debug('No failures found!')
       core.setOutput('result', 'No failures logged found so no action taken!')
@@ -37,60 +37,60 @@ async function run() {
 
     const failures = logs.map(path => JSON.parse(readFileSync(`${workdir}/${path}`)))
 
-    const parseFailure =  failure => ({
-      fullDescription: failure['testName'],
-      message: failure['testError'],
-      testFile: failure['specName'].split('%2F').slice(1).join('/')
+    const parseFailure = failure => ({
+      fullDescription: failure.testName,
+      message: failure.testError,
+      testFile: failure.specName.split('%2F').slice(1).join('/')
     })
 
     const failureBlocks = [{
-      type: "header",
+      type: 'header',
       text: {
-        type: "plain_text",
-        text: messageText,
+        type: 'plain_text',
+        text: messageText
       }
     }].concat(
       failures
         .map(parseFailure)
         .map(failure => ([
           {
-            type: "context",
+            type: 'context',
             elements: [
               {
-                type: "mrkdwn",
-                text: "📄",
+                type: 'mrkdwn',
+                text: '📄'
               },
               {
-                type: "mrkdwn",
-                text: `*File*: ${failure['testFile']}`
+                type: 'mrkdwn',
+                text: `*File*: ${failure.testFile}`
               }
             ]
           },
           {
-            type: "section",
+            type: 'section',
             text: {
-              type: "mrkdwn",
-              text: `*Failed test*: ${failure['fullDescription']}`
+              type: 'mrkdwn',
+              text: `*Failed test*: ${failure.fullDescription}`
             }
           },
           {
-            type: "section",
+            type: 'section',
             text: {
-              type: "mrkdwn",
-              text: `*message*: \`${failure['message'].split("\n")[0]}\``
+              type: 'mrkdwn',
+              text: `*message*: \`${failure.message.split('\n')[0]}\``
             }
           },
           {
-            type: "divider",
+            type: 'divider'
           }
         ]))
         .flat()
     ).concat([
       {
-        type: "section",
+        type: 'section',
         text: {
-          type: "mrkdwn",
-          text: "Videos and screenshots in :thread:"
+          type: 'mrkdwn',
+          text: 'Videos and screenshots in :thread:'
         }
       }
     ])
@@ -98,12 +98,12 @@ async function run() {
     const result = await slack.chat.postMessage({
       text: messageText,
       blocks: failureBlocks,
-      channel: channels,
+      channel: channels
     })
 
-    const failedSpecs = failures.map(parseFailure).map( failure => failure.testFile.split('/').slice(-1)[0])
+    const failedSpecs = failures.map(parseFailure).map(failure => failure.testFile.split('/').slice(-1)[0])
 
-    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)) )
+    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
 
     const { ts: threadId, channel: channelId } = result
 
@@ -111,16 +111,16 @@ async function run() {
       core.debug('Uploading videos...')
 
       await Promise.all(
-          failureVideos.map(async video => {
-            core.debug(`Uploading ${video}`)
+        failureVideos.map(async video => {
+          core.debug(`Uploading ${video}`)
 
-            await slack.files.upload({
-              filename: video,
-              file: createReadStream(`${workdir}/${video}`),
-              thread_ts: threadId,
-              channels: channelId
-            })
+          await slack.files.upload({
+            filename: video,
+            file: createReadStream(`${workdir}/${video}`),
+            thread_ts: threadId,
+            channels: channelId
           })
+        })
       )
 
       core.debug('...done!')
@@ -140,12 +140,11 @@ async function run() {
             channels: channelId
           })
         })
-    )
+      )
     }
-
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(error.message)
   }
 }
 
-run();
+run()
