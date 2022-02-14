@@ -11723,6 +11723,132 @@ module.exports = walkSync;
 
 /***/ }),
 
+/***/ 3159:
+/***/ ((module) => {
+
+const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset, threadOpts, debugLog = () => {}) => {
+  if (videos.length > 0) {
+    debugLog('Uploading videos...')
+
+    await Promise.all(
+      videos.map(async video => {
+        debugLog(`Uploading ${video}`)
+
+        await slack.files.upload({
+          filename: video,
+          file: streamAsset(video),
+          thread_ts: threadOpts.threadId,
+          channels: threadOpts.channelId
+        })
+      })
+    )
+
+    debugLog('...done!')
+  }
+
+  if (screenshots.length > 0) {
+    debugLog('Uploading screenshots...')
+
+    await Promise.all(
+      screenshots.map(async screenshot => {
+        debugLog(`Uploading ${screenshot}`)
+
+        await slack.files.upload({
+          filename: screenshot,
+          file: streamAsset(screenshot),
+          thread_ts: threadOpts.threadId,
+          channels: threadOpts.channelId
+        })
+      })
+    )
+
+    debugLog('...done!')
+  }
+}
+
+module.exports = attachAssetsToSlackThread
+
+
+/***/ }),
+
+/***/ 1738:
+/***/ ((module) => {
+
+/** Formats parsed failures as block components as per the Slack Block Kit @see https://api.slack.com/block-kit */
+const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCount) => ([{
+  type: 'header',
+  text: {
+    type: 'plain_text',
+    text: messageText
+  }
+}].concat(
+  failures
+    .map(failure => ([
+      {
+        type: 'context',
+        elements: [
+          {
+            type: 'mrkdwn',
+            text: '📄'
+          },
+          {
+            type: 'mrkdwn',
+            text: `*File*: ${failure.testFile}`
+          }
+        ]
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `*failed test*: ${failure.fullDescription}`
+        }
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `*message*: \`${failure.message.split('\n')[0]}\``
+        }
+      },
+      {
+        type: 'divider'
+      }
+    ]))
+    .flat()
+).concat([
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `${videoCount === 1 ? 'One video' : `${videoCount} videos`} and ${screenshotCount === 1 ? 'one screenshot' : `${screenshotCount} screenshots`} in :thread:`
+    }
+  }
+]))
+
+module.exports = formatFailuresAsBlocks
+
+
+/***/ }),
+
+/***/ 762:
+/***/ ((module) => {
+
+const parseFailLog = files => {
+  return files
+    .map(JSON.parse)
+    .map(failure => ({
+      fullDescription: failure.testName,
+      message: failure.testError.split('\n').filter(line => line.length > 0 && !line.startsWith('Because this error occurred')).join('\n'),
+      testFile: failure.specName.split('%2F').slice(1).join('/')
+    }))
+}
+
+module.exports = parseFailLog
+
+
+/***/ }),
+
 /***/ 9491:
 /***/ ((module) => {
 
@@ -11941,130 +12067,21 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
-// ESM COMPAT FLAG
 __nccwpck_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2186);
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(7147);
-// EXTERNAL MODULE: ./node_modules/walk-sync/index.js
-var walk_sync = __nccwpck_require__(2999);
-var walk_sync_default = /*#__PURE__*/__nccwpck_require__.n(walk_sync);
-// EXTERNAL MODULE: ./node_modules/@slack/web-api/dist/index.js
-var dist = __nccwpck_require__(431);
-;// CONCATENATED MODULE: ./src/attach-assets-to-slack-thread.js
-const attachAssetsToSlackThread = async (videos, screenshots, slack, readAsset, threadOpts, debugLog = () => {}) => {
-  if (videos.length > 0) {
-    debugLog('Uploading videos...')
-
-    await Promise.all(
-      videos.map(async video => {
-        debugLog(`Uploading ${video}`)
-
-        await slack.files.upload({
-          filename: video,
-          file: readAsset(video),
-          thread_ts: threadOpts.threadId,
-          channels: threadOpts.channelId
-        })
-      })
-    )
-
-    debugLog('...done!')
-  }
-
-  if (screenshots.length > 0) {
-    debugLog('Uploading screenshots...')
-
-    await Promise.all(
-      screenshots.map(async screenshot => {
-        debugLog(`Uploading ${screenshot}`)
-
-        await slack.files.upload({
-          filename: screenshot,
-          file: readAsset(screenshot),
-          thread_ts: threadOpts.threadId,
-          channels: threadOpts.channelId
-        })
-      })
-    )
-
-    debugLog('...done!')
-  }
-}
-
-/* harmony default export */ const attach_assets_to_slack_thread = (attachAssetsToSlackThread);
-
-;// CONCATENATED MODULE: ./src/format-failures-as-blocks.js
-/** Formats parsed failures as block components as per the Slack Block Kit @see https://api.slack.com/block-kit */
-const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCount) => ([{
-  type: 'header',
-  text: {
-    type: 'plain_text',
-    text: messageText
-  }
-}].concat(
-  failures
-    .map(failure => ([
-      {
-        type: 'context',
-        elements: [
-          {
-            type: 'mrkdwn',
-            text: '📄'
-          },
-          {
-            type: 'mrkdwn',
-            text: `*File*: ${failure.testFile}`
-          }
-        ]
-      },
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `*Failed test*: ${failure.fullDescription}`
-        }
-      },
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `*message*: \`${failure.message.split('\n')[0]}\``
-        }
-      },
-      {
-        type: 'divider'
-      }
-    ]))
-    .flat()
-).concat([
-  {
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: `${videoCount} video${videoCount === 1 ? '' : 's'} and ${screenshotCount} screenshot${screenshotCount === 1 ? '' : 's'} in :thread:`
-    }
-  }
-]))
-
-/* harmony default export */ const format_failures_as_blocks = (formatFailuresAsBlocks);
-
-;// CONCATENATED MODULE: ./src/parse-fail-log.js
-const parseFailLog = files => {
-  return files
-    .map(JSON.parse)
-    .map(failure => ({
-      fullDescription: failure.testName,
-      message: failure.testError,
-      testFile: failure.specName.split('%2F').slice(1).join('/')
-    }))
-}
-
-/* harmony default export */ const parse_fail_log = (parseFailLog);
-
-;// CONCATENATED MODULE: ./index.js
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2186);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(7147);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var walk_sync__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2999);
+/* harmony import */ var walk_sync__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(walk_sync__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _slack_web_api__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(431);
+/* harmony import */ var _slack_web_api__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__nccwpck_require__.n(_slack_web_api__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _src_attach_assets_to_slack_thread__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(3159);
+/* harmony import */ var _src_attach_assets_to_slack_thread__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__nccwpck_require__.n(_src_attach_assets_to_slack_thread__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _src_format_failures_as_blocks__WEBPACK_IMPORTED_MODULE_5__ = __nccwpck_require__(1738);
+/* harmony import */ var _src_format_failures_as_blocks__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__nccwpck_require__.n(_src_format_failures_as_blocks__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _src_parse_fail_log__WEBPACK_IMPORTED_MODULE_6__ = __nccwpck_require__(762);
+/* harmony import */ var _src_parse_fail_log__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__nccwpck_require__.n(_src_parse_fail_log__WEBPACK_IMPORTED_MODULE_6__);
 
 
 
@@ -12076,42 +12093,42 @@ const parseFailLog = files => {
 // most @actions toolkit packages have async methods
 async function run () {
   try {
-    const token = core.getInput('token')
-    const channels = core.getInput('channels')
-    const workdir = core.getInput('workdir') || 'cypress'
+    const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token')
+    const channels = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('channels')
+    const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('workdir') || 'cypress'
     const messageText =
-      core.getInput('message-text') ||
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('message-text') ||
       'A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread'
 
-    core.debug(`Token: ${token}`)
-    core.debug(`Channels: ${channels}`)
-    core.debug(`Message text: ${messageText}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Token: ${token}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Channels: ${channels}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Message text: ${messageText}`)
 
-    core.debug('Initializing slack SDK')
-    const slack = new dist.WebClient(core.getInput('token'))
-    core.debug('Slack SDK initialized successfully')
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Initializing slack SDK')
+    const slack = new _slack_web_api__WEBPACK_IMPORTED_MODULE_3__.WebClient(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token'))
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Slack SDK initialized successfully')
 
-    core.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walk_sync_default()(workdir, { globs: ['**/videos/**/*.mp4'] })
-    const screenshots = walk_sync_default()(workdir, { globs: ['**/screenshots/**/*.png'] })
-    const logs = walk_sync_default()(workdir, { globs: ['**/logs/*.json'] })
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Checking for videos and/or screenshots from cypress')
+    const videos = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/videos/**/*.mp4'] })
+    const screenshots = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/screenshots/**/*.png'] })
+    const logs = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/logs/*.json'] })
 
-    core.info(`There were ${logs.length} errors based on the files present.`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`There were ${logs.length} errors based on the files present.`)
     if (logs.length > 0) {
-      core.info(`The log files found were: ${logs.join(', ')}`)
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`The log files found were: ${logs.join(', ')}`)
     } else {
-      core.debug('No failures found!')
-      core.setOutput('result', 'No failures logged found so no action taken!')
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('No failures found!')
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('result', 'No failures logged found so no action taken!')
       return
     }
 
-    const failures = parse_fail_log(logs.map(path => (0,external_fs_.readFileSync)(`${workdir}/${path}`)))
+    const failures = _src_parse_fail_log__WEBPACK_IMPORTED_MODULE_6___default()(logs.map(path => (0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
 
     const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
 
     const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
 
-    const failureBlocks = format_failures_as_blocks(failures, messageText, failureVideos.length, screenshots.length)
+    const failureBlocks = _src_format_failures_as_blocks__WEBPACK_IMPORTED_MODULE_5___default()(failures, messageText, failureVideos.length, screenshots.length)
 
     const result = await slack.chat.postMessage({
       text: messageText,
@@ -12121,16 +12138,16 @@ async function run () {
 
     const { ts: threadId, channel: channelId } = result
 
-    await attach_assets_to_slack_thread(
+    await _src_attach_assets_to_slack_thread__WEBPACK_IMPORTED_MODULE_4___default()(
       failureVideos,
       screenshots,
       slack,
-      asset => (0,external_fs_.createReadStream)(`${workdir}/${asset}`),
+      asset => (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${asset}`),
       { threadId, channelId },
-      core.debug
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug
     )
   } catch (error) {
-    core.setFailed(error.message)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message)
   }
 }
 
