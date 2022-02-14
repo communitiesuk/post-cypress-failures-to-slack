@@ -84,13 +84,13 @@ async function run() {
               type: "mrkdwn",
               text: `*message*: \`${failure['message'].split("\n")[0]}\``
             }
+          },
+          {
+            type: "divider",
           }
         ]))
         .flat()
     ).concat([
-      {
-        type: "divider",
-      },
       {
         type: "section",
         text: {
