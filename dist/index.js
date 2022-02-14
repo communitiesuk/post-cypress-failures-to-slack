@@ -12086,7 +12086,7 @@ async function run() {
           _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Uploading ${screenshot}`)
 
           await slack.files.upload({
-            filename: video,
+            filename: screenshot,
             file: (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${screenshot}`),
             thread_ts: threadId,
             channels: channelId

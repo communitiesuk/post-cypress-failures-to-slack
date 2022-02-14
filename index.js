@@ -134,7 +134,7 @@ async function run() {
           core.debug(`Uploading ${screenshot}`)
 
           await slack.files.upload({
-            filename: video,
+            filename: screenshot,
             file: createReadStream(`${workdir}/${screenshot}`),
             thread_ts: threadId,
             channels: channelId
