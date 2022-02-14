@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import { readFileSync, createReadStream } from 'fs'
 import walkSync from 'walk-sync'
 import { WebClient } from '@slack/web-api'
+import formatFailuresAsBlocks from './src/format-failures-as-blocks'
 import parseFailLog from './src/parse-fail-log'
 
 // most @actions toolkit packages have async methods
@@ -38,56 +39,7 @@ async function run () {
 
     const failures = parseFailLog(logs.map(path => readFileSync(`${workdir}/${path}`)))
 
-    const failureBlocks = [{
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: messageText
-      }
-    }].concat(
-      failures
-        .map(failure => ([
-          {
-            type: 'context',
-            elements: [
-              {
-                type: 'mrkdwn',
-                text: '📄'
-              },
-              {
-                type: 'mrkdwn',
-                text: `*File*: ${failure.testFile}`
-              }
-            ]
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Failed test*: ${failure.fullDescription}`
-            }
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*message*: \`${failure.message.split('\n')[0]}\``
-            }
-          },
-          {
-            type: 'divider'
-          }
-        ]))
-        .flat()
-    ).concat([
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: 'Videos and screenshots in :thread:'
-        }
-      }
-    ])
+    const failureBlocks = formatFailuresAsBlocks(failures, messageText, videos.length, screenshots.length)
 
     const result = await slack.chat.postMessage({
       text: messageText,

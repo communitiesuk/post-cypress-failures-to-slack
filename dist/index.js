@@ -11953,6 +11953,61 @@ var walk_sync = __nccwpck_require__(2999);
 var walk_sync_default = /*#__PURE__*/__nccwpck_require__.n(walk_sync);
 // EXTERNAL MODULE: ./node_modules/@slack/web-api/dist/index.js
 var dist = __nccwpck_require__(431);
+;// CONCATENATED MODULE: ./src/format-failures-as-blocks.js
+/** Formats parsed failures as block components as per the Slack Block Kit @see https://api.slack.com/block-kit */
+const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCount) => ([{
+  type: 'header',
+  text: {
+    type: 'plain_text',
+    text: messageText
+  }
+}].concat(
+  failures
+    .map(failure => ([
+      {
+        type: 'context',
+        elements: [
+          {
+            type: 'mrkdwn',
+            text: '📄'
+          },
+          {
+            type: 'mrkdwn',
+            text: `*File*: ${failure.testFile}`
+          }
+        ]
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `*Failed test*: ${failure.fullDescription}`
+        }
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `*message*: \`${failure.message.split('\n')[0]}\``
+        }
+      },
+      {
+        type: 'divider'
+      }
+    ]))
+    .flat()
+).concat([
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `${videoCount} video${videoCount === 1 ? '' : 's'} and ${screenshotCount} screenshot${screenshotCount === 1 ? '' : 's'} in :thread:`
+    }
+  }
+]))
+
+/* harmony default export */ const format_failures_as_blocks = (formatFailuresAsBlocks);
+
 ;// CONCATENATED MODULE: ./src/parse-fail-log.js
 const parseFailLog = files => {
   return files
@@ -11967,6 +12022,7 @@ const parseFailLog = files => {
 /* harmony default export */ const parse_fail_log = (parseFailLog);
 
 ;// CONCATENATED MODULE: ./index.js
+
 
 
 
@@ -12007,56 +12063,7 @@ async function run () {
 
     const failures = parse_fail_log(logs.map(path => (0,external_fs_.readFileSync)(`${workdir}/${path}`)))
 
-    const failureBlocks = [{
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: messageText
-      }
-    }].concat(
-      failures
-        .map(failure => ([
-          {
-            type: 'context',
-            elements: [
-              {
-                type: 'mrkdwn',
-                text: '📄'
-              },
-              {
-                type: 'mrkdwn',
-                text: `*File*: ${failure.testFile}`
-              }
-            ]
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Failed test*: ${failure.fullDescription}`
-            }
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*message*: \`${failure.message.split('\n')[0]}\``
-            }
-          },
-          {
-            type: 'divider'
-          }
-        ]))
-        .flat()
-    ).concat([
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: 'Videos and screenshots in :thread:'
-        }
-      }
-    ])
+    const failureBlocks = format_failures_as_blocks(failures, messageText, videos.length, screenshots.length)
 
     const result = await slack.chat.postMessage({
       text: messageText,
