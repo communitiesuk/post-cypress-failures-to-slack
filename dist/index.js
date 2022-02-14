@@ -12048,7 +12048,7 @@ async function run() {
     ])
 
     const result = await slack.chat.postMessage({
-      text: failuresText,
+      text: messageText,
       blocks: failureBlocks,
       channel: channels,
     })
