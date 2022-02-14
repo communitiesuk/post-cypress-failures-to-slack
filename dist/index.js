@@ -11963,7 +11963,7 @@ async function run() {
     const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('workdir') || 'cypress'
     const messageText =
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('message-text') ||
-      "A Cypress test just finished. I've placed the screenshots and videos in this thread. Good pie!"
+      "A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread"
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Token: ${token}`)
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Channels: ${channels}`)
@@ -11974,8 +11974,8 @@ async function run() {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Slack SDK initialized successfully')
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/*.mp4'] })
-    const screenshots = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/*.png'] })
+    const videos = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/videos/**/*.mp4'] })
+    const screenshots = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/screenshots/**/*.png'] })
     const logs = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/logs/*.json'] })
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`There were ${logs.length} errors based on the files present.`)
@@ -11987,9 +11987,6 @@ async function run() {
       return
     }
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Sending initial slack message')
-    
-
     const failures = logs.map(path => JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
 
     const parseFailure =  failure => ({
@@ -11998,13 +11995,11 @@ async function run() {
       testFile: failure['specName'].split('%2F').slice(1).join('/')
     })
 
-    const failuresText = ':fire: EPB Frontend smoke test failure'
-
     const failureBlocks = [{
       type: "header",
       text: {
         type: "plain_text",
-        text: failuresText,
+        text: messageText,
       }
     }].concat(
       failures
@@ -12047,7 +12042,7 @@ async function run() {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "View videos in :thread:"
+          text: "Videos and screenshots in :thread:"
         }
       }
     ])
@@ -12081,6 +12076,23 @@ async function run() {
       )
 
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('...done!')
+    }
+
+    if (screenshots.length > 0) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Uploading screenshots')
+
+      await Promise.all(
+        screenshots.map(async screenshot => {
+          _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Uploading ${screenshot}`)
+
+          await slack.files.upload({
+            filename: video,
+            file: (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${screenshot}`),
+            thread_ts: threadId,
+            channels: channelId
+          })
+        })
+    )
     }
 
   } catch (error) {

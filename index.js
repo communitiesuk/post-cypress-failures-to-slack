@@ -11,7 +11,7 @@ async function run() {
     const workdir = core.getInput('workdir') || 'cypress'
     const messageText =
       core.getInput('message-text') ||
-      "A Cypress test just finished. I've placed the screenshots and videos in this thread. Good pie!"
+      "A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread"
 
     core.debug(`Token: ${token}`)
     core.debug(`Channels: ${channels}`)
@@ -22,8 +22,8 @@ async function run() {
     core.debug('Slack SDK initialized successfully')
 
     core.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walkSync(workdir, { globs: ['**/*.mp4'] })
-    const screenshots = walkSync(workdir, { globs: ['**/*.png'] })
+    const videos = walkSync(workdir, { globs: ['**/videos/**/*.mp4'] })
+    const screenshots = walkSync(workdir, { globs: ['**/screenshots/**/*.png'] })
     const logs = walkSync(workdir, { globs: ['**/logs/*.json'] })
 
     core.info(`There were ${logs.length} errors based on the files present.`)
@@ -35,9 +35,6 @@ async function run() {
       return
     }
 
-    core.debug('Sending initial slack message')
-    
-
     const failures = logs.map(path => JSON.parse(readFileSync(`${workdir}/${path}`)))
 
     const parseFailure =  failure => ({
@@ -46,13 +43,11 @@ async function run() {
       testFile: failure['specName'].split('%2F').slice(1).join('/')
     })
 
-    const failuresText = ':fire: EPB Frontend smoke test failure'
-
     const failureBlocks = [{
       type: "header",
       text: {
         type: "plain_text",
-        text: failuresText,
+        text: messageText,
       }
     }].concat(
       failures
@@ -95,7 +90,7 @@ async function run() {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "View videos in :thread:"
+          text: "Videos and screenshots in :thread:"
         }
       }
     ])
@@ -129,6 +124,23 @@ async function run() {
       )
 
       core.debug('...done!')
+    }
+
+    if (screenshots.length > 0) {
+      core.debug('Uploading screenshots')
+
+      await Promise.all(
+        screenshots.map(async screenshot => {
+          core.debug(`Uploading ${screenshot}`)
+
+          await slack.files.upload({
+            filename: video,
+            file: createReadStream(`${workdir}/${screenshot}`),
+            thread_ts: threadId,
+            channels: channelId
+          })
+        })
+    )
     }
 
   } catch (error) {
