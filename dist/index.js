@@ -11941,15 +11941,33 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
+// ESM COMPAT FLAG
 __nccwpck_require__.r(__webpack_exports__);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2186);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(7147);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var walk_sync__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2999);
-/* harmony import */ var walk_sync__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(walk_sync__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _slack_web_api__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(431);
-/* harmony import */ var _slack_web_api__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__nccwpck_require__.n(_slack_web_api__WEBPACK_IMPORTED_MODULE_3__);
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2186);
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(7147);
+// EXTERNAL MODULE: ./node_modules/walk-sync/index.js
+var walk_sync = __nccwpck_require__(2999);
+var walk_sync_default = /*#__PURE__*/__nccwpck_require__.n(walk_sync);
+// EXTERNAL MODULE: ./node_modules/@slack/web-api/dist/index.js
+var dist = __nccwpck_require__(431);
+;// CONCATENATED MODULE: ./src/parse-fail-log.js
+const parseFailLog = files => {
+  return files
+    .map(JSON.parse)
+    .map(failure => ({
+      fullDescription: failure.testName,
+      message: failure.testError,
+      testFile: failure.specName.split('%2F').slice(1).join('/')
+    }))
+}
+
+/* harmony default export */ const parse_fail_log = (parseFailLog);
+
+;// CONCATENATED MODULE: ./index.js
+
 
 
 
@@ -11958,42 +11976,36 @@ __nccwpck_require__.r(__webpack_exports__);
 // most @actions toolkit packages have async methods
 async function run () {
   try {
-    const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token')
-    const channels = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('channels')
-    const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('workdir') || 'cypress'
+    const token = core.getInput('token')
+    const channels = core.getInput('channels')
+    const workdir = core.getInput('workdir') || 'cypress'
     const messageText =
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('message-text') ||
+      core.getInput('message-text') ||
       'A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread'
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Token: ${token}`)
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Channels: ${channels}`)
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Message text: ${messageText}`)
+    core.debug(`Token: ${token}`)
+    core.debug(`Channels: ${channels}`)
+    core.debug(`Message text: ${messageText}`)
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Initializing slack SDK')
-    const slack = new _slack_web_api__WEBPACK_IMPORTED_MODULE_3__.WebClient(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token'))
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Slack SDK initialized successfully')
+    core.debug('Initializing slack SDK')
+    const slack = new dist.WebClient(core.getInput('token'))
+    core.debug('Slack SDK initialized successfully')
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/videos/**/*.mp4'] })
-    const screenshots = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/screenshots/**/*.png'] })
-    const logs = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/logs/*.json'] })
+    core.debug('Checking for videos and/or screenshots from cypress')
+    const videos = walk_sync_default()(workdir, { globs: ['**/videos/**/*.mp4'] })
+    const screenshots = walk_sync_default()(workdir, { globs: ['**/screenshots/**/*.png'] })
+    const logs = walk_sync_default()(workdir, { globs: ['**/logs/*.json'] })
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`There were ${logs.length} errors based on the files present.`)
+    core.info(`There were ${logs.length} errors based on the files present.`)
     if (logs.length > 0) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`The log files found were: ${logs.join(', ')}`)
+      core.info(`The log files found were: ${logs.join(', ')}`)
     } else {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('No failures found!')
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('result', 'No failures logged found so no action taken!')
+      core.debug('No failures found!')
+      core.setOutput('result', 'No failures logged found so no action taken!')
       return
     }
 
-    const failures = logs.map(path => JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
-
-    const parseFailure = failure => ({
-      fullDescription: failure.testName,
-      message: failure.testError,
-      testFile: failure.specName.split('%2F').slice(1).join('/')
-    })
+    const failures = parse_fail_log(logs.map(path => (0,external_fs_.readFileSync)(`${workdir}/${path}`)))
 
     const failureBlocks = [{
       type: 'header',
@@ -12003,7 +12015,6 @@ async function run () {
       }
     }].concat(
       failures
-        .map(parseFailure)
         .map(failure => ([
           {
             type: 'context',
@@ -12053,41 +12064,41 @@ async function run () {
       channel: channels
     })
 
-    const failedSpecs = failures.map(parseFailure).map(failure => failure.testFile.split('/').slice(-1)[0])
+    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
 
     const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
 
     const { ts: threadId, channel: channelId } = result
 
     if (failureVideos.length > 0) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Uploading videos...')
+      core.debug('Uploading videos...')
 
       await Promise.all(
         failureVideos.map(async video => {
-          _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Uploading ${video}`)
+          core.debug(`Uploading ${video}`)
 
           await slack.files.upload({
             filename: video,
-            file: (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${video}`),
+            file: (0,external_fs_.createReadStream)(`${workdir}/${video}`),
             thread_ts: threadId,
             channels: channelId
           })
         })
       )
 
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('...done!')
+      core.debug('...done!')
     }
 
     if (screenshots.length > 0) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Uploading screenshots')
+      core.debug('Uploading screenshots')
 
       await Promise.all(
         screenshots.map(async screenshot => {
-          _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Uploading ${screenshot}`)
+          core.debug(`Uploading ${screenshot}`)
 
           await slack.files.upload({
             filename: screenshot,
-            file: (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${screenshot}`),
+            file: (0,external_fs_.createReadStream)(`${workdir}/${screenshot}`),
             thread_ts: threadId,
             channels: channelId
           })
@@ -12095,7 +12106,7 @@ async function run () {
       )
     }
   } catch (error) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message)
+    core.setFailed(error.message)
   }
 }
 

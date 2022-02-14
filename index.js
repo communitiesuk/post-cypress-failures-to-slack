@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import { readFileSync, createReadStream } from 'fs'
 import walkSync from 'walk-sync'
 import { WebClient } from '@slack/web-api'
+import parseFailLog from './src/parse-fail-log'
 
 // most @actions toolkit packages have async methods
 async function run () {
@@ -35,13 +36,7 @@ async function run () {
       return
     }
 
-    const failures = logs.map(path => JSON.parse(readFileSync(`${workdir}/${path}`)))
-
-    const parseFailure = failure => ({
-      fullDescription: failure.testName,
-      message: failure.testError,
-      testFile: failure.specName.split('%2F').slice(1).join('/')
-    })
+    const failures = parseFailLog(logs.map(path => readFileSync(`${workdir}/${path}`)))
 
     const failureBlocks = [{
       type: 'header',
@@ -51,7 +46,6 @@ async function run () {
       }
     }].concat(
       failures
-        .map(parseFailure)
         .map(failure => ([
           {
             type: 'context',
@@ -101,7 +95,7 @@ async function run () {
       channel: channels
     })
 
-    const failedSpecs = failures.map(parseFailure).map(failure => failure.testFile.split('/').slice(-1)[0])
+    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
 
     const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
 
