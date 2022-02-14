@@ -3,7 +3,7 @@ const path = require('path')
 const parseFailLog = require('../src/parse-fail-log')
 
 test('it successfully parses fail log files into failure objects', () => {
-  const logFiles = ['log1.json', 'log2.json', 'log3.json', 'log4.json'].map(file => readFileSync(path.resolve('test/fixtures/logs', file)))
+  const logFiles = ['log1.json', 'log2.json', 'log3.json', 'log4.json'].map(file => readFileSync(path.resolve('../test/fixtures/logs', file)))
 
   expect(parseFailLog(logFiles))
     .toEqual([
