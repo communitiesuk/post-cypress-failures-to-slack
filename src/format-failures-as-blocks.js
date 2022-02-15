@@ -18,7 +18,7 @@ const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCou
             },
             {
               type: 'mrkdwn',
-              text: `*File*: ${failure.testFile}`
+              text: `*File*: *${failure.testFile}*`
             }
           ]
         },

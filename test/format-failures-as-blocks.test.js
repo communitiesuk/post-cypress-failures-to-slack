@@ -32,7 +32,7 @@ test('it formats failures as expected Slack Block Kit blocks', () => {
         },
         {
           type: 'mrkdwn',
-          text: '*File*: salieri_spec.js'
+          text: '*File*: *salieri_spec.js*'
         }
       ]
     },
@@ -62,7 +62,7 @@ test('it formats failures as expected Slack Block Kit blocks', () => {
         },
         {
           type: 'mrkdwn',
-          text: '*File*: salieri_reprise_spec.js'
+          text: '*File*: *salieri_reprise_spec.js*'
         }
       ]
     },
@@ -125,7 +125,7 @@ test('when there are no videos or screenshots it does not mention them or refere
         },
         {
           type: 'mrkdwn',
-          text: '*File*: salieri_spec.js'
+          text: '*File*: *salieri_spec.js*'
         }
       ]
     },
@@ -155,7 +155,7 @@ test('when there are no videos or screenshots it does not mention them or refere
         },
         {
           type: 'mrkdwn',
-          text: '*File*: salieri_reprise_spec.js'
+          text: '*File*: *salieri_reprise_spec.js*'
         }
       ]
     },
