@@ -11776,7 +11776,7 @@ module.exports = attachAssetsToSlackThread
 
 /** Formats parsed failures as block components as per the Slack Block Kit @see https://api.slack.com/block-kit */
 const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCount) => {
-  let blocks = [{
+  const blocks = [{
     type: 'header',
     text: {
       type: 'plain_text',
