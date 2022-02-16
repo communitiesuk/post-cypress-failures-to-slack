@@ -19,13 +19,13 @@ This project is maintained by the Energy Performance of Buildings Register team 
 - Create an app
 - Under **Bot Token Scopes**, add `files:write` and `chat:write` permissions
 - Install the app into your workspace
-- Invite the bot to whatever channels you want to send the videos and screenshots to `/invite <botname>`
+- Invite the bot to whichever channels you want to send the videos and screenshots to `/invite <botname>`
 - Grab the `Bot User OAuth Token` from the `OAuth & Permissions` page
 - Add that token as a secret to your Github repo's `Actions Secrets` found under `Settings -> Secrets` (in the examples below we call it `SLACK_TOKEN`)
 
-### `channels`
+### `channel`
 
-**Required** Slack channels to upload to
+**Required** The Slack channel to upload to
 
 ### `workdir`
 
@@ -70,7 +70,7 @@ jobs:
         if: failure()
         with:
           token: ${{ secrets.SLACK_TOKEN }}
-          channels: 'engineering-ops'
+          channel: 'engineering-ops'
           message-text: 'The Cypress tests run within GitHub Actions failed!'
 ```
 

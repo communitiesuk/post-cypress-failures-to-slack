@@ -12103,14 +12103,14 @@ __nccwpck_require__.r(__webpack_exports__);
 async function run () {
   try {
     const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token')
-    const channels = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('channels')
+    const channel = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('channel')
     const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('workdir') || 'cypress'
     const messageText =
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('message-text') ||
       'A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread'
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Token: ${token}`)
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Channels: ${channels}`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Channel: ${channel}`)
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Message text: ${messageText}`)
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Initializing slack SDK')
@@ -12142,7 +12142,7 @@ async function run () {
     const result = await slack.chat.postMessage({
       text: messageText,
       blocks: failureBlocks,
-      channel: channels
+      channel: channel
     })
 
     const { ts: threadId, channel: channelId } = result
@@ -12155,6 +12155,8 @@ async function run () {
       { threadId, channelId },
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug
     )
+
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Failure messages and any videos and screenshots have now been sent to your \`${channel}\` channel in Slack!`)
   } catch (error) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message)
   }

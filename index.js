@@ -10,14 +10,14 @@ import parseFailLog from './src/parse-fail-log'
 async function run () {
   try {
     const token = core.getInput('token')
-    const channels = core.getInput('channels')
+    const channel = core.getInput('channel')
     const workdir = core.getInput('workdir') || 'cypress'
     const messageText =
       core.getInput('message-text') ||
       'A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread'
 
     core.debug(`Token: ${token}`)
-    core.debug(`Channels: ${channels}`)
+    core.debug(`Channel: ${channel}`)
     core.debug(`Message text: ${messageText}`)
 
     core.debug('Initializing slack SDK')
@@ -49,7 +49,7 @@ async function run () {
     const result = await slack.chat.postMessage({
       text: messageText,
       blocks: failureBlocks,
-      channel: channels
+      channel: channel
     })
 
     const { ts: threadId, channel: channelId } = result
@@ -62,6 +62,8 @@ async function run () {
       { threadId, channelId },
       core.debug
     )
+
+    core.info(`Failure messages and any videos and screenshots have now been sent to your \`${channel}\` channel in Slack!`)
   } catch (error) {
     core.setFailed(error.message)
   }
