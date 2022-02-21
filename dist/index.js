@@ -11809,7 +11809,7 @@ const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCou
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `*message*: \`${failure.message.split('\n')[0]}\``
+            text: `*message*: \`${failure.message.split('\n')[0].replace(/`/g, '')}\``
           }
         },
         {
