@@ -9,7 +9,7 @@ test('it formats failures as expected Slack Block Kit blocks', () => {
     },
     {
       fullDescription: 'Check again that there is the correct quantity of notes',
-      message: 'There are, still, too many notes',
+      message: 'There are, still, too many notes `and here is the exact error message in backticks`',
       testFile: 'salieri_reprise_spec.js'
     }
   ]
@@ -77,7 +77,7 @@ test('it formats failures as expected Slack Block Kit blocks', () => {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*message*: `There are, still, too many notes`'
+        text: '*message*: `There are, still, too many notes and here is the exact error message in backticks`'
       }
     },
     {
@@ -102,7 +102,7 @@ test('when there are no videos or screenshots it does not mention them or refere
     },
     {
       fullDescription: 'Check again that there is the correct quantity of notes',
-      message: 'There are, still, too many notes',
+      message: 'There are, still, too many notes `and here is the exact error message`',
       testFile: 'salieri_reprise_spec.js'
     }
   ]
@@ -170,7 +170,7 @@ test('when there are no videos or screenshots it does not mention them or refere
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*message*: `There are, still, too many notes`'
+        text: "*message*: `There are, still, too many notes and here is the exact error message`"
       }
     }
   ])
