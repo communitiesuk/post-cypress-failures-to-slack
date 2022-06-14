@@ -49,7 +49,7 @@ async function run () {
     const result = await slack.chat.postMessage({
       text: messageText,
       blocks: failureBlocks,
-      channel: channel
+      channel
     })
 
     const { ts: threadId, channel: channelId } = result

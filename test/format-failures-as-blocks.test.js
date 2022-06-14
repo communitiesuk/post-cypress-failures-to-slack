@@ -170,7 +170,7 @@ test('when there are no videos or screenshots it does not mention them or refere
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: "*message*: `There are, still, too many notes and here is the exact error message`"
+        text: '*message*: `There are, still, too many notes and here is the exact error message`'
       }
     }
   ])
