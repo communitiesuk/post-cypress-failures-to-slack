@@ -14349,18 +14349,16 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset
   if (videos.length > 0) {
     debugLog('Uploading videos...')
 
-    await Promise.all(
-      videos.map(async video => {
-        debugLog(`Uploading ${video}`)
-
-        await slack.files.upload({
-          filename: video,
+    await slack.files.uploadV2({
+      thread_ts: threadOpts.threadId,
+      channel_id: threadOpts.channelId,
+      file_uploads: await Promise.all(
+        videos.map(async video => ({
           file: streamAsset(video),
-          thread_ts: threadOpts.threadId,
-          channels: threadOpts.channelId
-        })
-      })
-    )
+          filename: video
+        }))
+      )
+    })
 
     debugLog('...done!')
   }
@@ -14368,18 +14366,16 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset
   if (screenshots.length > 0) {
     debugLog('Uploading screenshots...')
 
-    await Promise.all(
-      screenshots.map(async screenshot => {
-        debugLog(`Uploading ${screenshot}`)
-
-        await slack.files.upload({
-          filename: screenshot,
+    await slack.files.uploadV2({
+      thread_ts: threadOpts.threadId,
+      channel_id: threadOpts.channelId,
+      file_uploads: await Promise.all(
+        screenshots.map(async screenshot => ({
           file: streamAsset(screenshot),
-          thread_ts: threadOpts.threadId,
-          channels: threadOpts.channelId
-        })
-      })
-    )
+          filename: screenshot
+        }))
+      )
+    })
 
     debugLog('...done!')
   }

@@ -12,7 +12,7 @@ test('it uploads videos and screenshots to Slack', async () => {
   const uploadFn = jest.fn()
   const slack = {
     files: {
-      upload: uploadFn
+      uploadV2: uploadFn
     }
   }
 
@@ -20,34 +20,36 @@ test('it uploads videos and screenshots to Slack', async () => {
 
   expect(uploadFn.mock.calls).toEqual([
     [{
-      filename: 'video1.mp4',
-      file: 'video1.mp4 as stream',
       thread_ts: '34abcd',
-      channels: 'channel_zero'
+      channel_id: 'channel_zero',
+      file_uploads: [
+        {
+          filename: 'video1.mp4',
+          file: 'video1.mp4 as stream'
+        },
+        {
+          filename: 'video2.mp4',
+          file: 'video2.mp4 as stream'
+        }
+      ]
     }],
     [{
-      filename: 'video2.mp4',
-      file: 'video2.mp4 as stream',
       thread_ts: '34abcd',
-      channels: 'channel_zero'
-    }],
-    [{
-      filename: 'image1.png',
-      file: 'image1.png as stream',
-      thread_ts: '34abcd',
-      channels: 'channel_zero'
-    }],
-    [{
-      filename: 'image2.png',
-      file: 'image2.png as stream',
-      thread_ts: '34abcd',
-      channels: 'channel_zero'
-    }],
-    [{
-      filename: 'image3.png',
-      file: 'image3.png as stream',
-      thread_ts: '34abcd',
-      channels: 'channel_zero'
+      channel_id: 'channel_zero',
+      file_uploads: [
+        {
+          filename: 'image1.png',
+          file: 'image1.png as stream'
+        },
+        {
+          filename: 'image2.png',
+          file: 'image2.png as stream'
+        },
+        {
+          filename: 'image3.png',
+          file: 'image3.png as stream'
+        }
+      ]
     }]
   ])
 })
