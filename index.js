@@ -29,7 +29,7 @@ async function run () {
     // const screenshots = walkSync(workdir, { globs: ['**/screenshots/**/*.png'] })
     const logs = walkSync(workdir, { globs: ['**/logs/*.json'] })
 
-    core.info(`There were ${logs.length} errors based on the files present.`)
+    core.info(`Eleanor's test branch!! There were ${logs.length} errors based on the files present.`)
     // if (logs.length > 0) {
     //   core.info(`The log files found were: ${logs.join(', ')}`)
     // } else {
