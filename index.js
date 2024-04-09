@@ -47,7 +47,7 @@ async function run () {
     // const failureBlocks = formatFailuresAsBlocks(failures, messageText, failureVideos.length, screenshots.length)
 
     await slack.chat.postMessage({
-      text: messageText,
+      text: "Eleanor's test version",
       channel
     })
     //
