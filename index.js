@@ -25,43 +25,42 @@ async function run () {
     core.debug('Slack SDK initialized successfully')
 
     core.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walkSync(workdir, { globs: ['**/videos/**/*.mp4'] })
-    const screenshots = walkSync(workdir, { globs: ['**/screenshots/**/*.png'] })
+    // const videos = walkSync(workdir, { globs: ['**/videos/**/*.mp4'] })
+    // const screenshots = walkSync(workdir, { globs: ['**/screenshots/**/*.png'] })
     const logs = walkSync(workdir, { globs: ['**/logs/*.json'] })
 
     core.info(`There were ${logs.length} errors based on the files present.`)
-    if (logs.length > 0) {
-      core.info(`The log files found were: ${logs.join(', ')}`)
-    } else {
-      core.debug('No failures found!')
-      core.setOutput('result', 'No failures logged found so no action taken!')
-      return
-    }
+    // if (logs.length > 0) {
+    //   core.info(`The log files found were: ${logs.join(', ')}`)
+    // } else {
+    //   core.debug('No failures found!')
+    //   core.setOutput('result', 'No failures logged found so no action taken!')
+    //   return
+    // }
 
-    const failures = parseFailLog(logs.map(path => readFileSync(`${workdir}/${path}`)))
+    // const failures = parseFailLog(logs.map(path => readFileSync(`${workdir}/${path}`)))
+    //
+    // const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
+    //
+    // const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
+    //
+    // const failureBlocks = formatFailuresAsBlocks(failures, messageText, failureVideos.length, screenshots.length)
 
-    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
-
-    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
-
-    const failureBlocks = formatFailuresAsBlocks(failures, messageText, failureVideos.length, screenshots.length)
-
-    const result = await slack.chat.postMessage({
+    await slack.chat.postMessage({
       text: messageText,
-      blocks: failureBlocks,
       channel
     })
+    //
+    // const { ts: threadId, channel: channelId } = result
 
-    const { ts: threadId, channel: channelId } = result
-
-    await attachAssetsToSlackThread(
-      failureVideos,
-      screenshots,
-      slack,
-      asset => createReadStream(`${workdir}/${asset}`),
-      { threadId, channelId },
-      core.debug
-    )
+    // await attachAssetsToSlackThread(
+    //   failureVideos,
+    //   screenshots,
+    //   slack,
+    //   asset => createReadStream(`${workdir}/${asset}`),
+    //   { threadId, channelId },
+    //   core.debug
+    // )
 
     core.info(`Failure messages and any videos and screenshots have now been sent to your \`${channel}\` channel in Slack!`)
   } catch (error) {
