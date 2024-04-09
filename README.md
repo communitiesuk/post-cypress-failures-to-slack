@@ -86,7 +86,7 @@ To check out dependencies for the project, run `npm ci`.
 
 Unit tests can be run using `npm run test`.
 
-Target Node version is v16 - make sure to be running this in your development environment.
+Target Node version is v20 - make sure to be running this in your development environment.
 
 ### Important note re compilation
 
