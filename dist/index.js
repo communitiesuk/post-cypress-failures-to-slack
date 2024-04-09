@@ -16672,43 +16672,42 @@ async function run () {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Slack SDK initialized successfully')
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/videos/**/*.mp4'] })
-    const screenshots = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/screenshots/**/*.png'] })
+    // const videos = walkSync(workdir, { globs: ['**/videos/**/*.mp4'] })
+    // const screenshots = walkSync(workdir, { globs: ['**/screenshots/**/*.png'] })
     const logs = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/logs/*.json'] })
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`There were ${logs.length} errors based on the files present.`)
-    if (logs.length > 0) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`The log files found were: ${logs.join(', ')}`)
-    } else {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('No failures found!')
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('result', 'No failures logged found so no action taken!')
-      return
-    }
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Eleanor's test branch!! There were ${logs.length} errors based on the files present.`)
+    // if (logs.length > 0) {
+    //   core.info(`The log files found were: ${logs.join(', ')}`)
+    // } else {
+    //   core.debug('No failures found!')
+    //   core.setOutput('result', 'No failures logged found so no action taken!')
+    //   return
+    // }
 
-    const failures = _src_parse_fail_log__WEBPACK_IMPORTED_MODULE_6___default()(logs.map(path => (0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
+    // const failures = parseFailLog(logs.map(path => readFileSync(`${workdir}/${path}`)))
+    //
+    // const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
+    //
+    // const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
+    //
+    // const failureBlocks = formatFailuresAsBlocks(failures, messageText, failureVideos.length, screenshots.length)
 
-    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
-
-    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
-
-    const failureBlocks = _src_format_failures_as_blocks__WEBPACK_IMPORTED_MODULE_5___default()(failures, messageText, failureVideos.length, screenshots.length)
-
-    const result = await slack.chat.postMessage({
-      text: messageText,
-      blocks: failureBlocks,
+    await slack.chat.postMessage({
+      text: "Eleanor's test version",
       channel
     })
+    //
+    // const { ts: threadId, channel: channelId } = result
 
-    const { ts: threadId, channel: channelId } = result
-
-    await _src_attach_assets_to_slack_thread__WEBPACK_IMPORTED_MODULE_4___default()(
-      failureVideos,
-      screenshots,
-      slack,
-      asset => (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${asset}`),
-      { threadId, channelId },
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug
-    )
+    // await attachAssetsToSlackThread(
+    //   failureVideos,
+    //   screenshots,
+    //   slack,
+    //   asset => createReadStream(`${workdir}/${asset}`),
+    //   { threadId, channelId },
+    //   core.debug
+    // )
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Failure messages and any videos and screenshots have now been sent to your \`${channel}\` channel in Slack!`)
   } catch (error) {
