@@ -1,6 +1,6 @@
 const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset, threadOpts, debugLog = () => {}) => {
   if (videos.length > 0) {
-    debugLog('Uploading videos...')
+    console.log('Uploading videos...')
 
     await Promise.all(
       videos.map(async video => {
@@ -13,13 +13,13 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset
           channel_id: threadOpts.channelId
         })
       })
-    )
+    ).catch(e => console.log(e))
 
-    debugLog('...done!')
+    console.log('...done!')
   }
 
   if (screenshots.length > 0) {
-    debugLog('Uploading screenshots...')
+    console.log('Uploading screenshots...')
 
     await Promise.all(
       screenshots.map(async screenshot => {
@@ -32,9 +32,9 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset
           channel_id: threadOpts.channelId
         })
       })
-    )
+    ).catch(e => console.log(e))
 
-    debugLog('...done!')
+    console.log('...done!')
   }
 }
 
