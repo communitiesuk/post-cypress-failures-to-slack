@@ -36099,7 +36099,7 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset
       videos.map(async video => {
         debugLog(`Uploading ${video}`)
 
-        await slack.uploadV2({
+        await slack.files.uploadV2({
           filename: video,
           file: streamAsset(video),
           thread_ts: threadOpts.threadId,
@@ -36118,7 +36118,7 @@ const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset
       screenshots.map(async screenshot => {
         debugLog(`Uploading ${screenshot}`)
 
-        await slack.uploadV2({
+        await slack.files.uploadV2({
           filename: screenshot,
           file: streamAsset(screenshot),
           thread_ts: threadOpts.threadId,
