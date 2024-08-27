@@ -36091,26 +36091,7 @@ module.exports = walkSync;
 /***/ 3159:
 /***/ ((module) => {
 
-const attachAssetsToSlackThread = async (videos, screenshots, slack, streamAsset, threadOpts, debugLog = () => {}) => {
-  if (videos.length > 0) {
-    console.log('Uploading videos...')
-
-    await Promise.all(
-      videos.map(async video => {
-        debugLog(`Uploading ${video}`)
-
-        await slack.files.uploadV2({
-          filename: video,
-          file: streamAsset(video),
-          thread_ts: threadOpts.threadId,
-          channel_id: threadOpts.channelId
-        })
-      })
-    ).catch(e => console.log(e))
-
-    console.log('...done!')
-  }
-
+const attachAssetsToSlackThread = async (screenshots, slack, streamAsset, threadOpts, debugLog = () => {}) => {
   if (screenshots.length > 0) {
     console.log('Uploading screenshots...')
 
@@ -36140,7 +36121,7 @@ module.exports = attachAssetsToSlackThread
 /***/ ((module) => {
 
 /** Formats parsed failures as block components as per the Slack Block Kit @see https://api.slack.com/block-kit */
-const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCount) => {
+const formatFailuresAsBlocks = (failures, messageText, screenshotCount) => {
   const blocks = [{
     type: 'header',
     text: {
@@ -36184,12 +36165,12 @@ const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCou
       .flat()
   )
 
-  if (videoCount > 0 || screenshotCount > 0) {
+  if (screenshotCount > 0) {
     blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${videoCount === 1 ? 'One video' : `${videoCount} videos`} and ${screenshotCount === 1 ? 'one screenshot' : `${screenshotCount} screenshots`} in :thread:`
+        text: `${screenshotCount === 1 ? 'One screenshot' : `${screenshotCount} screenshots`} in :thread:`
       }
     })
   } else {
@@ -41342,7 +41323,7 @@ async function run () {
     const workdir = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('workdir') || 'cypress'
     const messageText =
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('message-text') ||
-      'A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread'
+      'A Cypress test just finished. Errors follow. Any screenshots are in this thread'
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Token: ${token}`)
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Channel: ${channel}`)
@@ -41352,8 +41333,7 @@ async function run () {
     const slack = new _slack_web_api__WEBPACK_IMPORTED_MODULE_3__.WebClient(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token'))
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Slack SDK initialized successfully')
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/videos/**/*.mp4'] })
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Checking for screenshots from cypress')
     const screenshots = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/screenshots/**/*.png'] })
     const logs = walk_sync__WEBPACK_IMPORTED_MODULE_2___default()(workdir, { globs: ['**/logs/*.json'] })
 
@@ -41368,11 +41348,7 @@ async function run () {
 
     const failures = _src_parse_fail_log__WEBPACK_IMPORTED_MODULE_6___default()(logs.map(path => (0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(`${workdir}/${path}`)))
 
-    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
-
-    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
-
-    const failureBlocks = _src_format_failures_as_blocks__WEBPACK_IMPORTED_MODULE_5___default()(failures, messageText, failureVideos.length, screenshots.length)
+    const failureBlocks = _src_format_failures_as_blocks__WEBPACK_IMPORTED_MODULE_5___default()(failures, messageText, screenshots.length)
 
     const result = await slack.chat.postMessage({
       text: messageText,
@@ -41383,7 +41359,6 @@ async function run () {
     const { ts: threadId, channel: channelId } = result
 
     await _src_attach_assets_to_slack_thread__WEBPACK_IMPORTED_MODULE_4___default()(
-      failureVideos,
       screenshots,
       slack,
       asset => (0,fs__WEBPACK_IMPORTED_MODULE_1__.createReadStream)(`${workdir}/${asset}`),
@@ -41391,7 +41366,7 @@ async function run () {
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug
     )
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Failure messages and any videos and screenshots have now been sent to your \`${channel}\` channel in Slack!`)
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Failure messages and any screenshots have now been sent to your \`${channel}\` channel in Slack!`)
   } catch (error) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message)
   }

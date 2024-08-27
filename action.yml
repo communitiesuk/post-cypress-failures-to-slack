@@ -1,5 +1,5 @@
 name: 'Post Cypress failures to Slack'
-description: 'Posts any failures in a Cypress run to Slack along with associated videos and screenshots'
+description: 'Posts any failures in a Cypress run to Slack along with associated screenshots'
 inputs:
   token:
     description: 'Slack token'

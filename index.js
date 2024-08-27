@@ -14,7 +14,7 @@ async function run () {
     const workdir = core.getInput('workdir') || 'cypress'
     const messageText =
       core.getInput('message-text') ||
-      'A Cypress test just finished. Errors follow. Any videos or screenshots are in this thread'
+      'A Cypress test just finished. Errors follow. Any screenshots are in this thread'
 
     core.debug(`Token: ${token}`)
     core.debug(`Channel: ${channel}`)
@@ -24,8 +24,7 @@ async function run () {
     const slack = new WebClient(core.getInput('token'))
     core.debug('Slack SDK initialized successfully')
 
-    core.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walkSync(workdir, { globs: ['**/videos/**/*.mp4'] })
+    core.debug('Checking for screenshots from cypress')
     const screenshots = walkSync(workdir, { globs: ['**/screenshots/**/*.png'] })
     const logs = walkSync(workdir, { globs: ['**/logs/*.json'] })
 
@@ -40,11 +39,7 @@ async function run () {
 
     const failures = parseFailLog(logs.map(path => readFileSync(`${workdir}/${path}`)))
 
-    const failedSpecs = failures.map(failure => failure.testFile.split('/').slice(-1)[0])
-
-    const failureVideos = videos.filter(video => failedSpecs.some(spec => video.includes(spec)))
-
-    const failureBlocks = formatFailuresAsBlocks(failures, messageText, failureVideos.length, screenshots.length)
+    const failureBlocks = formatFailuresAsBlocks(failures, messageText, screenshots.length)
 
     const result = await slack.chat.postMessage({
       text: messageText,
@@ -55,7 +50,6 @@ async function run () {
     const { ts: threadId, channel: channelId } = result
 
     await attachAssetsToSlackThread(
-      failureVideos,
       screenshots,
       slack,
       asset => createReadStream(`${workdir}/${asset}`),
@@ -63,7 +57,7 @@ async function run () {
       core.debug
     )
 
-    core.info(`Failure messages and any videos and screenshots have now been sent to your \`${channel}\` channel in Slack!`)
+    core.info(`Failure messages and any screenshots have now been sent to your \`${channel}\` channel in Slack!`)
   } catch (error) {
     core.setFailed(error.message)
   }

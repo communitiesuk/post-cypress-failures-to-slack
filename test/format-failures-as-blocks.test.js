@@ -15,7 +15,7 @@ test('it formats failures as expected Slack Block Kit blocks', () => {
   ]
   const messageText = 'Salieri has his 👀 on u'
 
-  expect(formatFailuresAsBlocks(failures, messageText, 3, 1)).toEqual([
+  expect(formatFailuresAsBlocks(failures, messageText, 1)).toEqual([
     {
       type: 'header',
       text: {
@@ -87,13 +87,13 @@ test('it formats failures as expected Slack Block Kit blocks', () => {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '3 videos and one screenshot in :thread:'
+        text: 'One screenshot in :thread:'
       }
     }
   ])
 })
 
-test('when there are no videos or screenshots it does not mention them or reference a thread', () => {
+test('when there are no screenshots it does not mention them or reference a thread', () => {
   const failures = [
     {
       fullDescription: 'Check that there aren\'t too many notes',

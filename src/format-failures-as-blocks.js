@@ -1,5 +1,5 @@
 /** Formats parsed failures as block components as per the Slack Block Kit @see https://api.slack.com/block-kit */
-const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCount) => {
+const formatFailuresAsBlocks = (failures, messageText, screenshotCount) => {
   const blocks = [{
     type: 'header',
     text: {
@@ -43,12 +43,12 @@ const formatFailuresAsBlocks = (failures, messageText, videoCount, screenshotCou
       .flat()
   )
 
-  if (videoCount > 0 || screenshotCount > 0) {
+  if (screenshotCount > 0) {
     blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${videoCount === 1 ? 'One video' : `${videoCount} videos`} and ${screenshotCount === 1 ? 'one screenshot' : `${screenshotCount} screenshots`} in :thread:`
+        text: `${screenshotCount === 1 ? 'One screenshot' : `${screenshotCount} screenshots`} in :thread:`
       }
     })
   } else {
