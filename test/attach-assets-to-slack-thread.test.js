@@ -11,7 +11,9 @@ test('it uploads videos and screenshots to Slack', async () => {
 
   const uploadFn = jest.fn()
   const slack = {
-    uploadV2: uploadFn
+    files: {
+      uploadV2: uploadFn
+    }
   }
 
   await attachAssetsToSlackThread(videos, screenshots, slack, streamAsset, threadOpts)
